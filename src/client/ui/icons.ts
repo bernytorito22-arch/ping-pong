@@ -1,0 +1,5 @@
+export const chevronLeft = `<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 4L6 9l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+export const dice = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="5" r="1.1" fill="currentColor"/><circle cx="11" cy="5" r="1.1" fill="currentColor"/><circle cx="8" cy="8" r="1.1" fill="currentColor"/><circle cx="5" cy="11" r="1.1" fill="currentColor"/><circle cx="11" cy="11" r="1.1" fill="currentColor"/></svg>`;
+
+export const paddles = `<svg class="bracket-mark" width="36" height="28" viewBox="0 0 36 28" aria-hidden="true"><path d="M8 4c4-3 10-2 12 4 2 6-2 12-8 14S1 20 2 13 4 7 8 4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M28 4c-4-3-10-2-12 4-2 6 2 12 8 14s11-2 10-9-2-6-6-9z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="14" r="2.2" fill="currentColor"/></svg>`;

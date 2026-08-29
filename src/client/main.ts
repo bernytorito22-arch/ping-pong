@@ -5,6 +5,7 @@ import { renderSetupScoreboard } from "./views/setup-scoreboard";
 import { mountBracket } from "./views/bracket";
 import { mountScoreboard, mountScoreboardRoom } from "./views/scoreboard";
 import { fetchRoom } from "./api";
+import { installLinkInterceptor, setNavigateListener } from "./router";
 
 type Route =
   | { name: "home" }
@@ -87,5 +88,7 @@ function mountRoom(container: HTMLElement, roomId: string): () => void {
   };
 }
 
+setNavigateListener(navigate);
+installLinkInterceptor();
 window.addEventListener("popstate", navigate);
 navigate();

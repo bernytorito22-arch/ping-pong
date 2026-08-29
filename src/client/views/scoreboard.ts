@@ -6,6 +6,8 @@ import {
   type PublicRoom,
   type WsConnection,
 } from "../api";
+import { flapBoard, flapSet, flapStrip } from "../ui/flap";
+import { navigateTo } from "../router";
 import { renderMissing } from "./missing";
 
 export function mountScoreboard(
@@ -44,7 +46,8 @@ export function mountScoreboard(
     const completed = match.state.status === "completed";
     const winner = completed && match.winnerId ? playerName(match.winnerId) : null;
     const showSets = room.rules.matchType !== "one_set";
-    const backHref = room.mode === "tournament" ? `/t/${roomId}` : `/t/${roomId}`;
+    const backHref = room.mode === "tournament" ? `/t/${roomId}` : "/";
+    const backLabel = room.mode === "tournament" ? "Volver" : "Volver";
 
     const animateA = prevPointsA !== null && prevPointsA !== match.state.pointsA;
     const animateB = prevPointsB !== null && prevPointsB !== match.state.pointsB;
@@ -52,34 +55,44 @@ export function mountScoreboard(
     prevPointsB = match.state.pointsB;
 
     container.innerHTML = `
-      <div class="stack scoreboard-view">
-        <h1>Marcador</h1>
+      <div class="scoreboard-view">
+        <div class="scoreboard-top">
+          <button type="button" class="score-sq" data-side="a" data-delta="-1" ${completed ? "disabled" : ""} aria-label="Restar punto ${escapeHtml(nameA)}">−</button>
+          <div class="scoreboard-sets">
+            <span class="scoreboard-sets-label">Sets</span>
+            ${
+              showSets
+                ? `<div class="set-pair set-pair--stack">${flapSet(match.state.setsA)}${flapSet(match.state.setsB)}</div>`
+                : ""
+            }
+          </div>
+          <button type="button" class="score-sq" data-side="b" data-delta="1" ${completed ? "disabled" : ""} aria-label="Sumar punto ${escapeHtml(nameB)}">+</button>
+        </div>
         ${toast ? `<p class="error-msg">${escapeHtml(toast)}</p>` : ""}
-        ${winner ? `<div class="status-msg">Ganó ${escapeHtml(winner)}</div>` : ""}
+        ${winner ? `<div class="status-msg">Ganó ${flapStrip(winner, "flap-strip--win")}</div>` : ""}
         <div class="scoreboard-grid">
           <div class="score-side">
             <div class="score-name">${escapeHtml(nameA)}</div>
-            ${showSets ? `<div class="score-sets">Sets: ${match.state.setsA}</div>` : ""}
-            <div class="score-points${animateA ? " score-updated" : ""}">${match.state.pointsA}</div>
-            <div class="score-controls">
-              <button type="button" data-side="a" data-delta="-1" ${completed ? "disabled" : ""}>−</button>
-              <button type="button" data-side="a" data-delta="1" ${completed ? "disabled" : ""}>+</button>
+            ${flapBoard(match.state.pointsA, animateA)}
+            <div class="score-rail">
+              <button type="button" class="score-sq" data-side="a" data-delta="-1" ${completed ? "disabled" : ""} aria-label="Restar">−</button>
+              <button type="button" class="score-sq" data-side="a" data-delta="1" ${completed ? "disabled" : ""} aria-label="Sumar">+</button>
             </div>
           </div>
+          <div class="score-divider" aria-hidden="true"></div>
           <div class="score-side">
             <div class="score-name">${escapeHtml(nameB)}</div>
-            ${showSets ? `<div class="score-sets">Sets: ${match.state.setsB}</div>` : ""}
-            <div class="score-points${animateB ? " score-updated" : ""}">${match.state.pointsB}</div>
-            <div class="score-controls">
-              <button type="button" data-side="b" data-delta="-1" ${completed ? "disabled" : ""}>−</button>
-              <button type="button" data-side="b" data-delta="1" ${completed ? "disabled" : ""}>+</button>
+            ${flapBoard(match.state.pointsB, animateB)}
+            <div class="score-rail">
+              <button type="button" class="score-sq" data-side="b" data-delta="-1" ${completed ? "disabled" : ""} aria-label="Restar">−</button>
+              <button type="button" class="score-sq" data-side="b" data-delta="1" ${completed ? "disabled" : ""} aria-label="Sumar">+</button>
             </div>
           </div>
         </div>
         <div class="scoreboard-actions">
-          <button type="button" id="undo" ${completed ? "disabled" : ""}>Deshacer</button>
-          ${room.mode === "scoreboard" ? `<button type="button" id="reset">Reset</button>` : ""}
-          <a class="button" href="${backHref}">${room.mode === "tournament" ? "Volver a la llave" : "Volver"}</a>
+          <button type="button" id="undo" class="text-link" ${completed ? "disabled" : ""}>Deshacer</button>
+          ${room.mode === "scoreboard" ? `<button type="button" id="reset" class="text-link">Reset</button>` : ""}
+          <a class="text-link" href="${backHref}">${backLabel}</a>
         </div>
       </div>
     `;
@@ -143,8 +156,8 @@ export function mountScoreboard(
         render();
         return;
       }
-      const match = room.bracket?.matches.find((m) => m.id === matchId);
-      if (!match) {
+      const found = room.bracket?.matches.find((m) => m.id === matchId);
+      if (!found) {
         cleanup();
         renderMissing(container);
         return;
@@ -191,8 +204,7 @@ export function mountScoreboardRoom(container: HTMLElement, roomId: string): () 
       }
       room = (await res.json()) as PublicRoom;
       if (room.mode === "tournament") {
-        cleanup();
-        location.replace(`/t/${roomId}`);
+        navigateTo(`/t/${roomId}`, true);
         return;
       }
       if (room.scoreboardMatch) {

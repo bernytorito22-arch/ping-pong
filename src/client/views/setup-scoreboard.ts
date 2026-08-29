@@ -1,5 +1,9 @@
-import type { MatchType, PointsTo, Rules } from "../../domain/types";
+import type { Rules } from "../../domain/types";
 import { createRoom } from "../api";
+import { navigateTo } from "../router";
+import { flapIndex } from "../ui/flap";
+import { chevronLeft } from "../ui/icons";
+import { applyRuleToggle, renderRulesToggles } from "../ui/rules";
 
 const DEFAULT_RULES: Rules = { matchType: "best_of_3", pointsTo: 11 };
 
@@ -11,26 +15,36 @@ export function renderSetupScoreboard(container: HTMLElement): void {
 
   const render = () => {
     container.innerHTML = `
-      <div class="stack setup-view">
-        <h1>Solo marcador</h1>
-        <p>Dos jugadores y las reglas del partido.</p>
-        ${error ? `<p class="error-msg">${escapeHtml(error)}</p>` : ""}
-        <div class="stack" id="names-list">
-          ${names
-            .map(
-              (name, i) => `
-            <div class="name-row" data-index="${i}">
-              <input type="text" value="${escapeHtml(name)}" placeholder="Jugador ${i + 1}" />
-            </div>`,
-            )
-            .join("")}
+      <div class="setup-view">
+        <div class="page-header">
+          <a class="button back-link" href="/" aria-label="Volver">${chevronLeft}</a>
+          <h1>Solo marcador</h1>
+          <span class="header-spacer" aria-hidden="true"></span>
         </div>
-        ${renderRules(rules)}
-        <div class="row">
-          <a class="button" href="/">Cancelar</a>
-          <button type="button" id="create-room" class="primary" ${busy ? "disabled" : ""}>
-            ${busy ? "Creando…" : "Crear marcador"}
-          </button>
+        ${error ? `<p class="error-msg">${escapeHtml(error)}</p>` : ""}
+        <div class="setup-grid">
+          <div class="setup-column">
+            <div class="field">
+              <span class="field-label">Jugadores</span>
+            </div>
+            <div class="player-list" id="names-list">
+              ${names
+                .map(
+                  (name, i) => `
+                <div class="player-row">
+                  ${flapIndex(i + 1)}
+                  <input type="text" value="${escapeHtml(name)}" placeholder="Jugador ${i + 1}" />
+                </div>`,
+                )
+                .join("")}
+            </div>
+          </div>
+          <div class="setup-column setup-column--rules">
+            ${renderRulesToggles(rules)}
+            <button type="button" id="create-room" class="primary setup-start" ${busy ? "disabled" : ""}>
+              ${busy ? "Creando…" : "Empezar"}
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -41,12 +55,11 @@ export function renderSetupScoreboard(container: HTMLElement): void {
       });
     });
 
-    container.querySelector<HTMLSelectElement>("#match-type")!.addEventListener("change", (e) => {
-      rules = { ...rules, matchType: (e.target as HTMLSelectElement).value as MatchType };
-    });
-
-    container.querySelector<HTMLSelectElement>("#points-to")!.addEventListener("change", (e) => {
-      rules = { ...rules, pointsTo: Number((e.target as HTMLSelectElement).value) as PointsTo };
+    container.querySelectorAll<HTMLButtonElement>(".flap-toggle[data-rule]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        rules = applyRuleToggle(rules, btn.dataset.rule!, btn.dataset.value!);
+        render();
+      });
     });
 
     container.querySelector("#create-room")!.addEventListener("click", async () => {
@@ -61,7 +74,7 @@ export function renderSetupScoreboard(container: HTMLElement): void {
       render();
       try {
         const { id } = await createRoom("scoreboard", cleaned, rules);
-        location.href = `/t/${id}`;
+        navigateTo(`/t/${id}`);
       } catch (err) {
         busy = false;
         error = err instanceof Error ? err.message : "No se pudo crear";
@@ -71,26 +84,6 @@ export function renderSetupScoreboard(container: HTMLElement): void {
   };
 
   render();
-}
-
-function renderRules(rules: Rules): string {
-  return `
-    <div class="field">
-      <label for="match-type">Modo de partido</label>
-      <select id="match-type">
-        <option value="one_set" ${rules.matchType === "one_set" ? "selected" : ""}>1 set</option>
-        <option value="best_of_3" ${rules.matchType === "best_of_3" ? "selected" : ""}>Mejor de 3</option>
-        <option value="best_of_5" ${rules.matchType === "best_of_5" ? "selected" : ""}>Mejor de 5</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="points-to">Puntos por set</label>
-      <select id="points-to">
-        <option value="7" ${rules.pointsTo === 7 ? "selected" : ""}>7</option>
-        <option value="11" ${rules.pointsTo === 11 ? "selected" : ""}>11</option>
-      </select>
-    </div>
-  `;
 }
 
 function escapeHtml(text: string): string {

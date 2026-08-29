@@ -1,15 +1,18 @@
+import { flapHomeTitle } from "../ui/flap";
+import { navigateTo } from "../router";
+
 export function renderHome(container: HTMLElement): void {
   container.innerHTML = `
-    <div class="stack home-view">
-      <h1>Ping Pong</h1>
-      <p>Torneo o marcador en vivo, sin cuentas.</p>
-      <a class="button primary" href="/nuevo">Nuevo torneo</a>
-      <a class="button" href="/marcador">Solo marcador</a>
-      <form id="join-form" class="stack">
-        <div class="field">
-          <label for="join-id">Unirse a una sala</label>
-          <input id="join-id" name="id" type="text" placeholder="Código o URL" autocomplete="off" />
-        </div>
+    <div class="home-view">
+      ${flapHomeTitle()}
+      <p class="home-footer">Comparte el link y juega</p>
+      <div class="home-actions">
+        <a class="button primary" href="/nuevo">Nuevo torneo</a>
+        <a class="button" href="/marcador">Solo marcador</a>
+      </div>
+      <form id="join-form" class="home-join">
+        <label for="join-id">Unirse a una sala</label>
+        <input id="join-id" name="id" type="text" placeholder="Código o URL" autocomplete="off" />
         <button type="submit" class="primary">Entrar</button>
       </form>
     </div>
@@ -23,7 +26,7 @@ export function renderHome(container: HTMLElement): void {
       alert("Ingresa un código válido");
       return;
     }
-    location.href = `/t/${id}`;
+    navigateTo(`/t/${id}`);
   });
 }
 

@@ -1,7 +1,14 @@
-import type { MatchType, PointsTo, Rules } from "../../domain/types";
+import type { Rules } from "../../domain/types";
 import { createRoom } from "../api";
+import { navigateTo } from "../router";
+import { flapIndex } from "../ui/flap";
+import { chevronLeft, dice } from "../ui/icons";
+import { applyRuleToggle, renderRulesToggles } from "../ui/rules";
 
 const DEFAULT_RULES: Rules = { matchType: "best_of_3", pointsTo: 11 };
+const PRESETS = [4, 8, 16] as const;
+const MIN_PLAYERS = 2;
+const MAX_PLAYERS = 16;
 
 export function renderSetupTournament(container: HTMLElement): void {
   let names = ["", ""];
@@ -9,33 +16,60 @@ export function renderSetupTournament(container: HTMLElement): void {
   let busy = false;
   let error = "";
 
+  const filled = () => names.map((n) => n.trim()).filter(Boolean).length;
+  const oddHint = () => {
+    const n = filled() || names.length;
+    if (n % 2 === 1) {
+      return `<p class="setup-hint">Número impar: alguien pasa automático (bye) al azar.</p>`;
+    }
+    return "";
+  };
+
   const render = () => {
     container.innerHTML = `
-      <div class="stack setup-view">
-        <h1>Nuevo torneo</h1>
-        <p>Agrega entre 2 y 16 jugadores.</p>
+      <div class="setup-view">
+        <div class="page-header">
+          <a class="button back-link" href="/" aria-label="Volver">${chevronLeft}</a>
+          <h1>Nuevo torneo</h1>
+          <span class="header-spacer" aria-hidden="true"></span>
+        </div>
         ${error ? `<p class="error-msg">${escapeHtml(error)}</p>` : ""}
-        <div class="stack" id="names-list">
-          ${names
-            .map(
-              (name, i) => `
-            <div class="name-row" data-index="${i}">
-              <input type="text" value="${escapeHtml(name)}" placeholder="Jugador ${i + 1}" />
-              <button type="button" class="remove-name" ${names.length <= 2 ? "disabled" : ""}>−</button>
-            </div>`,
-            )
-            .join("")}
-        </div>
-        <div class="row">
-          <button type="button" id="add-name" ${names.length >= 16 ? "disabled" : ""}>+ Jugador</button>
-          <button type="button" id="shuffle-names">Mezclar nombres</button>
-        </div>
-        ${renderRules(rules)}
-        <div class="row">
-          <a class="button" href="/">Cancelar</a>
-          <button type="button" id="create-room" class="primary" ${busy ? "disabled" : ""}>
-            ${busy ? "Creando…" : "Crear torneo"}
-          </button>
+        <div class="setup-grid">
+          <div class="setup-column">
+            <div class="field">
+              <span class="field-label">Jugadores (${names.length})</span>
+              <div class="flap-toggle-group" role="group" aria-label="Atajos de cantidad">
+                ${PRESETS.map(
+                  (n) =>
+                    `<button type="button" class="flap-toggle ${names.length === n ? "is-active" : ""}" data-count="${n}">${n}</button>`,
+                ).join("")}
+              </div>
+              <div class="player-count-bar">
+                <button type="button" id="remove-name" ${names.length <= MIN_PLAYERS ? "disabled" : ""} aria-label="Quitar jugador">−</button>
+                <span class="player-count-num">${names.length}</span>
+                <button type="button" id="add-name" ${names.length >= MAX_PLAYERS ? "disabled" : ""} aria-label="Agregar jugador">+</button>
+              </div>
+            </div>
+            ${oddHint()}
+            <div class="player-list" id="names-list">
+              ${names
+                .map(
+                  (name, i) => `
+                <div class="player-row">
+                  ${flapIndex(i + 1)}
+                  <input type="text" value="${escapeHtml(name)}" placeholder="Jugador ${i + 1}" />
+                </div>`,
+                )
+                .join("")}
+            </div>
+            <button type="button" id="shuffle-names" class="button-aleatorio">${dice} Aleatorio</button>
+          </div>
+          <div class="setup-column setup-column--rules">
+            ${renderRulesToggles(rules)}
+            <button type="button" id="create-room" class="primary setup-start" ${busy ? "disabled" : ""}>
+              ${busy ? "Creando…" : "Empezar torneo"}
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -50,19 +84,25 @@ export function renderSetupTournament(container: HTMLElement): void {
       });
     });
 
-    container.querySelectorAll<HTMLButtonElement>(".remove-name").forEach((btn) => {
+    container.querySelectorAll<HTMLButtonElement>("[data-count]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const i = Number(btn.closest("[data-index]")!.getAttribute("data-index"));
-        if (names.length > 2) {
-          names.splice(i, 1);
-          render();
-        }
+        const n = Number(btn.dataset.count);
+        if (n > names.length) names = [...names, ...Array(n - names.length).fill("")];
+        else names = names.slice(0, n);
+        render();
       });
     });
 
     container.querySelector("#add-name")!.addEventListener("click", () => {
-      if (names.length < 16) {
+      if (names.length < MAX_PLAYERS) {
         names.push("");
+        render();
+      }
+    });
+
+    container.querySelector("#remove-name")!.addEventListener("click", () => {
+      if (names.length > MIN_PLAYERS) {
+        names.pop();
         render();
       }
     });
@@ -72,17 +112,16 @@ export function renderSetupTournament(container: HTMLElement): void {
       render();
     });
 
-    container.querySelector<HTMLSelectElement>("#match-type")!.addEventListener("change", (e) => {
-      rules = { ...rules, matchType: (e.target as HTMLSelectElement).value as MatchType };
-    });
-
-    container.querySelector<HTMLSelectElement>("#points-to")!.addEventListener("change", (e) => {
-      rules = { ...rules, pointsTo: Number((e.target as HTMLSelectElement).value) as PointsTo };
+    container.querySelectorAll<HTMLButtonElement>(".flap-toggle[data-rule]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        rules = applyRuleToggle(rules, btn.dataset.rule!, btn.dataset.value!);
+        render();
+      });
     });
 
     container.querySelector("#create-room")!.addEventListener("click", async () => {
       const cleaned = names.map((n) => n.trim()).filter(Boolean);
-      if (cleaned.length < 2) {
+      if (cleaned.length < MIN_PLAYERS) {
         error = "Necesitas al menos 2 nombres";
         render();
         return;
@@ -92,7 +131,7 @@ export function renderSetupTournament(container: HTMLElement): void {
       render();
       try {
         const { id } = await createRoom("tournament", cleaned, rules);
-        location.href = `/t/${id}`;
+        navigateTo(`/t/${id}`);
       } catch (err) {
         busy = false;
         error = err instanceof Error ? err.message : "No se pudo crear";
@@ -102,26 +141,6 @@ export function renderSetupTournament(container: HTMLElement): void {
   };
 
   render();
-}
-
-function renderRules(rules: Rules): string {
-  return `
-    <div class="field">
-      <label for="match-type">Modo de partido</label>
-      <select id="match-type">
-        <option value="one_set" ${rules.matchType === "one_set" ? "selected" : ""}>1 set</option>
-        <option value="best_of_3" ${rules.matchType === "best_of_3" ? "selected" : ""}>Mejor de 3</option>
-        <option value="best_of_5" ${rules.matchType === "best_of_5" ? "selected" : ""}>Mejor de 5</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="points-to">Puntos por set</label>
-      <select id="points-to">
-        <option value="7" ${rules.pointsTo === 7 ? "selected" : ""}>7</option>
-        <option value="11" ${rules.pointsTo === 11 ? "selected" : ""}>11</option>
-      </select>
-    </div>
-  `;
 }
 
 function shuffle<T>(arr: T[]): T[] {
