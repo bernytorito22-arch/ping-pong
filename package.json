@@ -7,7 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "npm run build && vite preview",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "npm run build && wrangler deploy -c src/client/dist/ping_pong/wrangler.json",
     "test": "vitest run",
     "types": "wrangler types"
   },
