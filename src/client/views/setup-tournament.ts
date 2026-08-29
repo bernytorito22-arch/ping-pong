@@ -11,7 +11,7 @@ export function renderSetupTournament(container: HTMLElement): void {
 
   const render = () => {
     container.innerHTML = `
-      <div class="stack">
+      <div class="stack setup-view">
         <h1>Nuevo torneo</h1>
         <p>Agrega entre 2 y 16 jugadores.</p>
         ${error ? `<p class="error-msg">${escapeHtml(error)}</p>` : ""}

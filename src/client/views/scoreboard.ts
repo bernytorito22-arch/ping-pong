@@ -16,6 +16,8 @@ export function mountScoreboard(
   let room: PublicRoom | null = null;
   let ws: WsConnection | null = null;
   let toast = "";
+  let prevPointsA: number | null = null;
+  let prevPointsB: number | null = null;
 
   const cleanup = () => {
     ws?.close();
@@ -44,30 +46,37 @@ export function mountScoreboard(
     const showSets = room.rules.matchType !== "one_set";
     const backHref = room.mode === "tournament" ? `/t/${roomId}` : `/t/${roomId}`;
 
+    const animateA = prevPointsA !== null && prevPointsA !== match.state.pointsA;
+    const animateB = prevPointsB !== null && prevPointsB !== match.state.pointsB;
+    prevPointsA = match.state.pointsA;
+    prevPointsB = match.state.pointsB;
+
     container.innerHTML = `
-      <div class="stack scoreboard">
+      <div class="stack scoreboard-view">
         <h1>Marcador</h1>
         ${toast ? `<p class="error-msg">${escapeHtml(toast)}</p>` : ""}
         ${winner ? `<div class="status-msg">Ganó ${escapeHtml(winner)}</div>` : ""}
-        <div class="score-side">
-          <div class="score-name">${escapeHtml(nameA)}</div>
-          ${showSets ? `<div class="score-sets">Sets: ${match.state.setsA}</div>` : ""}
-          <div class="score-points">${match.state.pointsA}</div>
-          <div class="score-controls">
-            <button type="button" data-side="a" data-delta="-1" ${completed ? "disabled" : ""}>−</button>
-            <button type="button" data-side="a" data-delta="1" ${completed ? "disabled" : ""}>+</button>
+        <div class="scoreboard-grid">
+          <div class="score-side">
+            <div class="score-name">${escapeHtml(nameA)}</div>
+            ${showSets ? `<div class="score-sets">Sets: ${match.state.setsA}</div>` : ""}
+            <div class="score-points${animateA ? " score-updated" : ""}">${match.state.pointsA}</div>
+            <div class="score-controls">
+              <button type="button" data-side="a" data-delta="-1" ${completed ? "disabled" : ""}>−</button>
+              <button type="button" data-side="a" data-delta="1" ${completed ? "disabled" : ""}>+</button>
+            </div>
+          </div>
+          <div class="score-side">
+            <div class="score-name">${escapeHtml(nameB)}</div>
+            ${showSets ? `<div class="score-sets">Sets: ${match.state.setsB}</div>` : ""}
+            <div class="score-points${animateB ? " score-updated" : ""}">${match.state.pointsB}</div>
+            <div class="score-controls">
+              <button type="button" data-side="b" data-delta="-1" ${completed ? "disabled" : ""}>−</button>
+              <button type="button" data-side="b" data-delta="1" ${completed ? "disabled" : ""}>+</button>
+            </div>
           </div>
         </div>
-        <div class="score-side">
-          <div class="score-name">${escapeHtml(nameB)}</div>
-          ${showSets ? `<div class="score-sets">Sets: ${match.state.setsB}</div>` : ""}
-          <div class="score-points">${match.state.pointsB}</div>
-          <div class="score-controls">
-            <button type="button" data-side="b" data-delta="-1" ${completed ? "disabled" : ""}>−</button>
-            <button type="button" data-side="b" data-delta="1" ${completed ? "disabled" : ""}>+</button>
-          </div>
-        </div>
-        <div class="row">
+        <div class="scoreboard-actions">
           <button type="button" id="undo" ${completed ? "disabled" : ""}>Deshacer</button>
           ${room.mode === "scoreboard" ? `<button type="button" id="reset">Reset</button>` : ""}
           <a class="button" href="${backHref}">${room.mode === "tournament" ? "Volver a la llave" : "Volver"}</a>

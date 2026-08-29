@@ -1,6 +1,6 @@
 export function renderHome(container: HTMLElement): void {
   container.innerHTML = `
-    <div class="stack">
+    <div class="stack home-view">
       <h1>Ping Pong</h1>
       <p>Torneo o marcador en vivo, sin cuentas.</p>
       <a class="button primary" href="/nuevo">Nuevo torneo</a>

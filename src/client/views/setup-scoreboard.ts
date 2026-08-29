@@ -11,7 +11,7 @@ export function renderSetupScoreboard(container: HTMLElement): void {
 
   const render = () => {
     container.innerHTML = `
-      <div class="stack">
+      <div class="stack setup-view">
         <h1>Solo marcador</h1>
         <p>Dos jugadores y las reglas del partido.</p>
         ${error ? `<p class="error-msg">${escapeHtml(error)}</p>` : ""}

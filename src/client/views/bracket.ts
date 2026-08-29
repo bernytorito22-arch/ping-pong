@@ -36,9 +36,9 @@ export function mountBracket(container: HTMLElement, roomId: string): () => void
     const rounds = groupByRound(room.bracket?.matches ?? []);
 
     container.innerHTML = `
-      <div class="stack">
+      <div class="stack bracket-view">
         <h1>Torneo</h1>
-        <p>Código: <strong>${escapeHtml(room.id)}</strong></p>
+        <p>Código: <strong class="room-code">${escapeHtml(room.id)}</strong></p>
         ${toast ? `<p class="error-msg">${escapeHtml(toast)}</p>` : ""}
         ${champion ? `<div class="champion">Campeón: ${escapeHtml(champion)}</div>` : ""}
         <div class="row">
@@ -91,15 +91,26 @@ export function mountBracket(container: HTMLElement, roomId: string): () => void
 
     if (isBye) {
       const passer = match.winnerId ? playerName(match.winnerId) : a !== "—" ? a : b;
-      return `<li class="match-card bye">${escapeHtml(passer)} pasa</li>`;
+      return `<li class="match-card bye">
+        <span class="bye-name">${escapeHtml(passer)}</span>
+        <span class="bye-label">Pasa</span>
+      </li>`;
     }
+
+    const isActive =
+      room!.activeMatchId === match.id || match.state.status === "in_progress";
 
     const score =
       completed || match.state.status === "in_progress"
-        ? ` — ${match.state.setsA}-${match.state.setsB} (${match.state.pointsA}-${match.state.pointsB})`
+        ? `<span class="match-score"> — ${match.state.setsA}-${match.state.setsB} (${match.state.pointsA}-${match.state.pointsB})</span>`
         : "";
 
-    const classes = ["match-card", completed ? "completed" : "", openable ? "clickable" : ""]
+    const classes = [
+      "match-card",
+      completed ? "completed" : "",
+      isActive ? "active" : "",
+      openable ? "clickable" : "",
+    ]
       .filter(Boolean)
       .join(" ");
 
