@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-29T20:14:00.000Z",
+  "title": "Design System: Ping Pong",
+  "extensions": {
+    "colorMeta": {
+      "board": {
+        "role": "neutral",
+        "displayName": "Warm Board",
+        "canonical": "#f4f1ea",
+        "tonalRamp": ["#2a2824", "#3d3a34", "#5a564e", "#7a756a", "#9a9488", "#b8b2a6", "#d4cec4", "#f4f1ea"]
+      },
+      "board-surface": {
+        "role": "neutral",
+        "displayName": "Board Surface",
+        "canonical": "#faf8f3",
+        "tonalRamp": ["#2c2b28", "#403f3b", "#5c5a55", "#787670", "#94918a", "#b0ada6", "#d0cdc6", "#faf8f3"]
+      },
+      "graphite": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "#2c2c2c",
+        "tonalRamp": ["#0a0a0a", "#141414", "#1e1e1e", "#282828", "#2c2c2c", "#404040", "#5a5a5a", "#7a7a7a"]
+      },
+      "chalk-green": {
+        "role": "primary",
+        "displayName": "Chalk Green",
+        "canonical": "#3d8b5f",
+        "tonalRamp": ["#0f2318", "#1a3d2a", "#24573c", "#2e714e", "#357a53", "#3d8b5f", "#5aa37a", "#8fc4a8"]
+      },
+      "error": {
+        "role": "tertiary",
+        "displayName": "Error Red",
+        "canonical": "#8b2e2e",
+        "tonalRamp": ["#1a0808", "#2e1212", "#421c1c", "#562626", "#6b3030", "#8b2e2e", "#a84a4a", "#c87070"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Score Display", "purpose": "Live point totals on scoreboard; tabular-nums at 64px+." },
+      "headline": { "displayName": "Page Headline", "purpose": "View titles: Ping Pong, Torneo, Marcador." },
+      "label": { "displayName": "Round Label", "purpose": "Uppercase round titles and bye labels." }
+    },
+    "shadows": [
+      { "name": "active-match", "value": "0 2px 8px rgba(44, 44, 44, 0.08)", "purpose": "Active match card only." }
+    ],
+    "motion": [
+      { "name": "score-change", "value": "180ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Opacity/scale on point update." }
+    ],
+    "breakpoints": [
+      { "name": "scoreboard-fluid", "value": "clamp-based; no fixed breakpoint" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main call-to-action: Nuevo torneo, Entrar, Crear torneo.",
+      "html": "<button class=\"ds-btn-primary\">Nuevo torneo</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 3.5rem; padding: 0.75rem 1.125rem; font-family: system-ui, sans-serif; font-size: 1rem; font-weight: 600; color: #fff; background: #3d8b5f; border: 2px solid #3d8b5f; border-radius: 0.5rem; cursor: pointer; } .ds-btn-primary:hover { background: #357a53; border-color: #357a53; } .ds-btn-primary:focus-visible { outline: 2px solid #3d8b5f; outline-offset: 2px; }"
+    },
+    {
+      "name": "Default Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "Secondary actions: Solo marcador, Copiar enlace, Cancelar.",
+      "html": "<button class=\"ds-btn-default\">Solo marcador</button>",
+      "css": ".ds-btn-default { display: inline-flex; align-items: center; justify-content: center; min-height: 3.5rem; padding: 0.75rem 1.125rem; font-family: system-ui, sans-serif; font-size: 1rem; font-weight: 600; color: #2c2c2c; background: #faf8f3; border: 2px solid #2c2c2c; border-radius: 0.5rem; cursor: pointer; } .ds-btn-default:hover { background: #f4f1ea; } .ds-btn-default:focus-visible { outline: 2px solid #3d8b5f; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Room join code and player name fields.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Código o URL\" />",
+      "css": ".ds-input { min-height: 3.5rem; padding: 0.625rem 0.875rem; font-family: system-ui, sans-serif; font-size: 1rem; color: #2c2c2c; border: 2px solid #2c2c2c; border-radius: 0.5rem; background: #faf8f3; } .ds-input:focus { outline: 2px solid #3d8b5f; outline-offset: 2px; }"
+    },
+    {
+      "name": "Match Card",
+      "kind": "card",
+      "refersTo": "match-card",
+      "description": "Bracket row showing two players and optional score.",
+      "html": "<li class=\"ds-match-card\">Ana vs Luis — 1-0 (11-7)</li>",
+      "css": ".ds-match-card { padding: 1rem 1.125rem; background: #faf8f3; border: 2px solid #2c2c2c; border-radius: 0.5rem; font-size: 1.0625rem; font-weight: 600; line-height: 1.35; list-style: none; } .ds-match-card:hover { background: #f4f1ea; cursor: pointer; }"
+    },
+    {
+      "name": "Active Match Card",
+      "kind": "card",
+      "refersTo": "match-card-active",
+      "description": "Currently selected or in-progress bracket match.",
+      "html": "<li class=\"ds-match-card ds-match-active\">Ana vs Luis — 0-0 (5-3)</li>",
+      "css": ".ds-match-card.ds-match-active { border-color: #3d8b5f; box-shadow: 0 2px 8px rgba(44, 44, 44, 0.08); }"
+    },
+    {
+      "name": "Bye Row",
+      "kind": "custom",
+      "description": "Non-playable bye slot with dashed border and Pasa label.",
+      "html": "<li class=\"ds-bye\"><span>Carlos</span><span class=\"ds-bye-label\">Pasa</span></li>",
+      "css": ".ds-bye { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.125rem; background: #faf8f3; border: 2px dashed #2c2c2c; border-radius: 0.5rem; color: #5a5a5a; } .ds-bye-label { font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }"
+    },
+    {
+      "name": "Score Display",
+      "kind": "custom",
+      "description": "Large tabular point total on scoreboard.",
+      "html": "<div class=\"ds-score-points\">11</div>",
+      "css": ".ds-score-points { font-size: clamp(4rem, 18vw, 5.5rem); font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }"
+    },
+    {
+      "name": "Status Banner",
+      "kind": "custom",
+      "description": "Winner announcement and success states.",
+      "html": "<div class=\"ds-status\">Ganó Ana</div>",
+      "css": ".ds-status { padding: 0.875rem 1rem; background: rgba(61, 139, 95, 0.12); border: 2px solid #3d8b5f; border-radius: 0.5rem; text-align: center; font-weight: 700; color: #2c2c2c; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Club dry-erase whiteboard",
+    "overview": "Ping Pong looks like a warm garage-club scoreboard drawn on a dry-erase surface: off-white board ground, graphite 2px lines, and a single chalk-green accent for primary actions and the active match. The UI operates in Spanish with direct copy and no account chrome.",
+    "keyCharacteristics": [
+      "Warm board ground with subtle paper grain",
+      "Graphite 2px outlines; chalk green for primary + active match only",
+      "System-ui typography; scores at display scale (64px+)",
+      "Spanish UI copy; bye labeled Pasa with dashed border",
+      "Motion limited to 180ms score-change animation"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Chalk green appears only on primary actions and the active match border.", "section": "colors" },
+      { "name": "The Bye Is Text Rule", "body": "Bye rows use a dashed border plus uppercase Pasa label—never color alone.", "section": "colors" },
+      { "name": "The Tabular Score Rule", "body": "All live scores, set counts, and room codes use tabular-nums.", "section": "typography" },
+      { "name": "The Flat Board Rule", "body": "Surfaces sit on the board ground with borders, not floating cards.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep all copy in Spanish and direct.",
+      "Do use 3.5rem minimum touch targets on every control.",
+      "Do show bracket matches as scannable cards with clear states.",
+      "Do animate only score digit changes (180ms ease-out)."
+    ],
+    "donts": [
+      "Don't add esports neon, terminal chrome, or Challonge-style aesthetics.",
+      "Don't use chalk green for decoration.",
+      "Don't rely on color alone to distinguish bye from playable matches.",
+      "Don't add page-load animations."
+    ]
+  }
+}
