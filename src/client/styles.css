@@ -133,11 +133,8 @@ a.button {
   background: var(--surface);
   border: 1.5px solid var(--ink);
   border-radius: var(--radius);
-}
-
-button:hover:not(:disabled),
-a.button:hover {
-  background: var(--board);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 button:disabled {
@@ -152,10 +149,33 @@ a.button.primary {
   border-color: var(--flap-black);
 }
 
-button.primary:hover:not(:disabled),
-a.button.primary:hover {
-  background: var(--ink-muted);
-  border-color: var(--ink-muted);
+button:active:not(:disabled):not(.primary):not(.score-sq):not(.flap-toggle.is-active) {
+  background: var(--board);
+}
+
+button.primary:active:not(:disabled),
+.score-sq:active:not(:disabled),
+.flap-toggle.is-active:active {
+  background: var(--flap-top);
+  border-color: var(--flap-top);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button:hover:not(:disabled):not(.primary):not(.score-sq):not(.flap-toggle.is-active),
+  a.button:hover:not(.primary) {
+    background: var(--board);
+  }
+
+  button.primary:hover:not(:disabled),
+  a.button.primary:hover {
+    background: var(--ink-muted);
+    border-color: var(--ink-muted);
+  }
+
+  .score-sq:hover:not(:disabled) {
+    background: var(--flap-top);
+    border-color: var(--flap-top);
+  }
 }
 
 .text-link {
@@ -172,8 +192,10 @@ a.button.primary:hover {
   cursor: pointer;
 }
 
-.text-link:hover {
-  color: var(--ink);
+@media (hover: hover) and (pointer: fine) {
+  .text-link:hover {
+    color: var(--ink);
+  }
 }
 
 .flap {
@@ -600,8 +622,10 @@ a.button.primary:hover {
   cursor: pointer;
 }
 
-.match-card.clickable:hover {
-  background: var(--board);
+@media (hover: hover) and (pointer: fine) {
+  .match-card.clickable:hover {
+    background: var(--board);
+  }
 }
 
 .match-card.active {
@@ -711,7 +735,11 @@ a.button.primary:hover {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 0.75rem;
-  align-items: start;
+  align-items: center;
+}
+
+.scoreboard-top .live-pill {
+  justify-self: start;
 }
 
 .scoreboard-sets {

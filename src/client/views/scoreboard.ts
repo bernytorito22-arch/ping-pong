@@ -6,7 +6,7 @@ import {
   type PublicRoom,
   type WsConnection,
 } from "../api";
-import { flapBoard, flapSet, flapStrip } from "../ui/flap";
+import { flapBoard, flapSet, flapStrip, livePill } from "../ui/flap";
 import { navigateTo } from "../router";
 import { renderMissing } from "./missing";
 
@@ -57,7 +57,7 @@ export function mountScoreboard(
     container.innerHTML = `
       <div class="scoreboard-view">
         <div class="scoreboard-top">
-          <button type="button" class="score-sq" data-side="a" data-delta="-1" ${completed ? "disabled" : ""} aria-label="Restar punto ${escapeHtml(nameA)}">−</button>
+          ${completed ? `<span class="header-spacer" aria-hidden="true"></span>` : livePill()}
           <div class="scoreboard-sets">
             <span class="scoreboard-sets-label">Sets</span>
             ${
@@ -66,7 +66,7 @@ export function mountScoreboard(
                 : ""
             }
           </div>
-          <button type="button" class="score-sq" data-side="b" data-delta="1" ${completed ? "disabled" : ""} aria-label="Sumar punto ${escapeHtml(nameB)}">+</button>
+          <span class="header-spacer" aria-hidden="true"></span>
         </div>
         ${toast ? `<p class="error-msg">${escapeHtml(toast)}</p>` : ""}
         ${winner ? `<div class="status-msg">Ganó ${flapStrip(winner, "flap-strip--win")}</div>` : ""}
